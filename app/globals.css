@@ -1,0 +1,216 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #08080a;
+  --paper: #f7f4ec;
+  --paper-soft: #fffaf0;
+  --ink: #221f1b;
+  --muted: #6b6458;
+  --accent: #b45309;
+  --accent-soft: #fdba74;
+  --ok: #15803d;
+  --bad: #b91c1c;
+}
+
+* {
+  border-color: rgb(0 0 0 / 10%);
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% 0%, #2e1200 0%, #100a00 28%, #07080a 72%, #050505 100%);
+  color: var(--ink);
+  font-family: var(--font-sans), Arial, sans-serif;
+}
+
+.ipc-shell {
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.ipc-shell::before {
+  content: "";
+  position: fixed;
+  inset: -20vh -10vw auto;
+  width: 70vw;
+  height: 70vw;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgb(251 191 36 / 0.18), transparent 60%);
+  filter: blur(0.1px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.panel {
+  @apply relative overflow-hidden rounded-3xl border border-white/10 bg-white/75 shadow-2xl backdrop-blur-xl;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgb(255 255 255 / 0.32), rgb(255 255 255 / 0));
+  pointer-events: none;
+}
+
+.panel-inner {
+  @apply relative z-10;
+}
+
+.glass-kpi {
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.65));
+  @apply panel p-4 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-2xl;
+}
+
+.hero-tag {
+  @apply inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-[#5a2d00];
+}
+
+.hero-title {
+  font-family: var(--font-display), Georgia, serif;
+  @apply text-3xl font-black leading-tight text-[#2c1200] sm:text-5xl;
+}
+
+.metric-label {
+  @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-black/55;
+}
+
+.metric-value {
+  font-family: var(--font-display), Georgia, serif;
+  @apply mt-2 text-3xl font-black leading-none tracking-tight text-[#2c1200] sm:text-4xl;
+}
+
+.metric-sub {
+  @apply mt-2 text-sm text-black/60;
+}
+
+.metric-value-positive {
+  @apply text-[#b91c1c];
+}
+
+.metric-value-negative {
+  @apply text-[#15803d];
+}
+
+.metric-trend-positive {
+  @apply text-[#b91c1c] font-semibold text-xs;
+}
+
+.metric-trend-negative {
+  @apply text-[#15803d] font-semibold text-xs;
+}
+
+.chip {
+  @apply inline-flex items-center rounded-full border border-black/10 bg-white/80 px-3 py-1 text-xs font-medium text-black/70;
+}
+
+.icon-inline {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: -0.12em;
+}
+
+.icon-lg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.icon-hero {
+  width: 1.35em;
+  height: 1.35em;
+  vertical-align: -0.08em;
+}
+
+.sparkline {
+  filter: drop-shadow(0 6px 12px rgb(0 0 0 / 10%));
+}
+
+.blink-dot {
+  fill: #fde047;
+  stroke: #b91c1c;
+  stroke-width: 2;
+  animation: blinkPulse 1s ease-in-out infinite;
+}
+
+.reveal {
+  animation: rise 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blinkPulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(1.28);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.table-shell {
+  @apply panel overflow-hidden p-0;
+}
+
+.table-head {
+  @apply bg-black/[0.05] text-left;
+}
+
+.table-body tr {
+  @apply border-b border-black/10;
+}
+
+.table-body tr:hover {
+  @apply bg-black/[0.03];
+}
+
+.status-pill {
+  @apply inline-flex rounded-full border px-2 py-1 text-[11px] font-semibold;
+}
+
+.status-ok {
+  @apply border-green-200 bg-green-50 text-green-700;
+}
+
+.status-alert {
+  @apply border-red-200 bg-red-50 text-red-700;
+}
+
+.chart-title {
+  @apply mb-3 text-sm font-black uppercase tracking-[0.16em] text-black/70;
+}
+
+.chart-panel {
+  @apply panel p-4;
+}
+
+.page-subtle {
+  @apply text-sm text-black/65;
+}
+
+@media (max-width: 1024px) {
+  .ipc-shell {
+    padding: 1rem 0.75rem 2rem;
+  }
+}

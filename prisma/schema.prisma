@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Categoria {
+  Bebida
+  Carne
+  Guarnicion
+  Picada
+}
+
+enum PriceStatus {
+  ok
+  no_encontrado
+  error
+  parse_error
+}
+
+enum SnapshotOrigin {
+  seed
+  manual
+  scheduled
+  on_demand
+}
+
+enum RunStatus {
+  running
+  ok
+  partial
+  error
+}
+
+enum RunTrigger {
+  visit
+  manual
+  scheduled
+}
+
+model Product {
+  id          String            @id @default(cuid())
+  codigo      String            @unique
+  nombreBase  String
+  nombreActual String?
+  categoria   Categoria
+  qty         Float
+  um          String
+  activo      Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  currentPrice CurrentPrice?
+  snapshots   MonthlySnapshot[]
+}
+
+model CurrentPrice {
+  id             String      @id @default(cuid())
+  productId      String      @unique
+  precioUnitario Float
+  moneda         String      @default("ARS")
+  scrapedAt      DateTime
+  sourceUrl      String
+  status         PriceStatus @default(ok)
+  rawText        String?
+  rawHtmlSnippet String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  product        Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model MonthlySnapshot {
+  id             String         @id @default(cuid())
+  productId      String
+  anio           Int
+  mes            Int
+  precioUnitario Float
+  moneda         String         @default("ARS")
+  fuente         String         @default("lagallega")
+  origin         SnapshotOrigin @default(on_demand)
+  capturedAt     DateTime
+  sourceUrl      String
+  status         PriceStatus    @default(ok)
+  rawText        String?
+  rawHtmlSnippet String?
+  notes          String?
+  createdAt      DateTime       @default(now())
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, anio, mes], name: "productId_anio_mes")
+}
+
+model ScrapeRun {
+  id         String     @id @default(cuid())
+  startedAt  DateTime   @default(now())
+  endedAt    DateTime?
+  status     RunStatus  @default(running)
+  trigger    RunTrigger
+  itemsOk    Int        @default(0)
+  itemsError Int        @default(0)
+  log        String?
+}
