@@ -110,7 +110,7 @@ function buildSnapshotView(
   products: ProductWithData[],
   selected: SnapshotOption,
   baseKey: string,
-  actualPrevKey: string,
+  actualPrevKey: string | null,
   currentYm: { anio: number; mes: number }
 ): DashboardSnapshotView {
   const selectedKey = selected.isActual
@@ -130,15 +130,34 @@ function buildSnapshotView(
     );
 
     const selectedSnapshot = snapshotsByKey.get(selectedKey);
-    const prevSnapshot = snapshotsByKey.get(previousForSelected) ?? null;
+    const prevSnapshot = selected.isActual
+      ? (previousForSelected ? (snapshotsByKey.get(previousForSelected) ?? null) : null)
+      : (previousForSelected ? (snapshotsByKey.get(previousForSelected) ?? null) : null);
     const baseSnapshot = snapshotsByKey.get(baseKey) ?? null;
+    const fallbackActualSnapshot = previousForSelected ? (snapshotsByKey.get(previousForSelected) ?? null) : null;
+    const currentScrapedAt = p.currentPrice?.scrapedAt ?? null;
+    const hasCurrentMonthPrice = Boolean(
+      currentScrapedAt &&
+      currentScrapedAt.getUTCFullYear() === currentYm.anio &&
+      currentScrapedAt.getUTCMonth() + 1 === currentYm.mes
+    );
+
+    const effectiveActualPrice =
+      hasCurrentMonthPrice
+        ? (p.currentPrice?.precioUnitario ?? null)
+        : (fallbackActualSnapshot?.precioUnitario ?? p.currentPrice?.precioUnitario ?? null);
+
+    const effectiveActualStatus =
+      hasCurrentMonthPrice
+        ? (p.currentPrice?.status ?? "no_encontrado")
+        : (fallbackActualSnapshot?.status ?? p.currentPrice?.status ?? "no_encontrado");
 
     const selectedPrice = selected.isActual
-      ? (p.currentPrice?.precioUnitario ?? 0)
+      ? (effectiveActualPrice ?? 0)
       : (selectedSnapshot?.precioUnitario ?? 0);
 
     const selectedStatus = selected.isActual
-      ? (p.currentPrice?.status ?? "no_encontrado")
+      ? effectiveActualStatus
       : (selectedSnapshot?.status ?? "no_encontrado");
 
     const subtotal = selectedPrice * p.qty;
@@ -150,7 +169,7 @@ function buildSnapshotView(
         anio === currentYm.anio &&
         mes === currentYm.mes
       ) {
-        return p.currentPrice?.precioUnitario ?? null;
+        return effectiveActualPrice;
       }
       return snapshotsByKey.get(monthKey(anio, mes))?.precioUnitario ?? null;
     };
@@ -282,14 +301,20 @@ export async function getDashboardData(): Promise<DashboardData> {
   ];
 
   const baseKey = monthKey(BASE_ANIO, BASE_MES);
-  const actualPrevKey = monthKey(prev.anio, prev.mes);
+  const latestClosedBeforeCurrent = monthOptions
+    .filter((m) => (m.anio < anio) || (m.anio === anio && m.mes < mes))
+    .at(-1);
+  const actualPrevKey = latestClosedBeforeCurrent
+    ? monthKey(latestClosedBeforeCurrent.anio, latestClosedBeforeCurrent.mes)
+    : null;
   const fallbackClosedMonthKey =
     monthOptions.length > 0
       ? monthKey(monthOptions[monthOptions.length - 1].anio, monthOptions[monthOptions.length - 1].mes)
       : "actual";
-  const defaultSnapshotKey = snapshotOptions.some((opt) => opt.key === actualPrevKey)
-    ? actualPrevKey
-    : fallbackClosedMonthKey;
+  const defaultSnapshotKey =
+    actualPrevKey && snapshotOptions.some((opt) => opt.key === actualPrevKey)
+      ? actualPrevKey
+      : fallbackClosedMonthKey;
 
   const viewsBySnapshot = Object.fromEntries(
     snapshotOptions.map((opt) => [

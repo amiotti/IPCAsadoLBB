@@ -19,7 +19,7 @@ const PRODUCT_ICON_BY_CODE: Record<string, string> = {
 
 const UI_ICONS = {
   beer: "\u{1F37A}",
-  money: "\u{1F4B5}"
+  money: "$"
 } as const;
 
 const iconCache = new Map<string, string>();
@@ -27,6 +27,14 @@ const iconCache = new Map<string, string>();
 function buildSvgDataUri(icon: string) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
   <text x="16" y="24" text-anchor="middle" font-size="22" font-family="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji">${icon}</text>
+</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function buildMoneySvgDataUri() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <rect x="2" y="6" width="28" height="20" rx="4" fill="#22c55e" stroke="#166534" stroke-width="1.5"/>
+  <text x="16" y="21" text-anchor="middle" font-size="14" font-weight="700" fill="#052e16" font-family="Arial, sans-serif">$</text>
 </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
@@ -49,7 +57,11 @@ export function getProductIconByCode(codigo: string | number | undefined | null)
 export function getUiIcon(key: keyof typeof UI_ICONS) {
   const cacheKey = getUiIconCacheKey(key);
   if (!iconCache.has(cacheKey)) {
-    iconCache.set(cacheKey, buildSvgDataUri(UI_ICONS[key]));
+    if (key === "money") {
+      iconCache.set(cacheKey, buildMoneySvgDataUri());
+    } else {
+      iconCache.set(cacheKey, buildSvgDataUri(UI_ICONS[key]));
+    }
   }
   return iconCache.get(cacheKey) ?? null;
 }
