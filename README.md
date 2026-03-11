@@ -4,7 +4,7 @@ Aplicacion Next.js + Prisma para seguimiento mensual del costo de una canasta de
 
 ## Stack
 - Next.js App Router + React + TypeScript
-- Prisma (SQLite por defecto local)
+- Prisma (MongoDB)
 - Tailwind CSS
 - Recharts
 - Framer Motion (disponible para animaciones)
@@ -17,9 +17,15 @@ Aplicacion Next.js + Prisma para seguimiento mensual del costo de una canasta de
 ## Arranque local
 1. `npm install`
 2. `copy .env.example .env`
-3. `npx prisma migrate dev --name init`
+3. `npm run prisma:push`
 4. `npm run prisma:seed`
 5. `npm run dev`
+
+## Produccion (MongoDB + Prisma)
+1. Configurar `DATABASE_URL` de MongoDB Atlas (o equivalente).
+2. Ejecutar `npm run prisma:push` en el entorno de deploy.
+3. (Opcional) Ejecutar `npm run prisma:seed` una sola vez para cargar catalogo base.
+4. Definir `CRON_SECRET` y usarlo para proteger endpoints de escritura.
 
 ## Endpoints
 - `GET /api/dashboard`
@@ -28,6 +34,12 @@ Aplicacion Next.js + Prisma para seguimiento mensual del costo de una canasta de
 - `GET /api/products`
 - `GET /api/history`
 - `GET /api/history/product/:codigo`
+
+### Seguridad de endpoints criticos
+Los endpoints `POST /api/prices/refresh` y `POST /api/snapshots/monthly` requieren autenticacion por secreto:
+- `Authorization: Bearer <CRON_SECRET>` o
+- `x-api-key: <CRON_SECRET>` o
+- `x-cron-secret: <CRON_SECRET>`
 
 ## Regla historica
 - Los reportes historicos salen solo de `monthly_snapshots`.

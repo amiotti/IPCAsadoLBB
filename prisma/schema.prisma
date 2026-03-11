@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -42,7 +42,7 @@ enum RunTrigger {
 }
 
 model Product {
-  id          String            @id @default(cuid())
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
   codigo      String            @unique
   nombreBase  String
   nombreActual String?
@@ -57,8 +57,8 @@ model Product {
 }
 
 model CurrentPrice {
-  id             String      @id @default(cuid())
-  productId      String      @unique
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  productId      String      @unique @db.ObjectId
   precioUnitario Float
   moneda         String      @default("ARS")
   scrapedAt      DateTime
@@ -72,8 +72,8 @@ model CurrentPrice {
 }
 
 model MonthlySnapshot {
-  id             String         @id @default(cuid())
-  productId      String
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  productId      String         @db.ObjectId
   anio           Int
   mes            Int
   precioUnitario Float
@@ -93,7 +93,7 @@ model MonthlySnapshot {
 }
 
 model ScrapeRun {
-  id         String     @id @default(cuid())
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
   startedAt  DateTime   @default(now())
   endedAt    DateTime?
   status     RunStatus  @default(running)
