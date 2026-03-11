@@ -1,12 +1,16 @@
 import { DashboardClient } from "@/components/dashboard-client";
-import { getDashboardData } from "@/lib/dashboard";
+import { getDashboardDataSafe } from "@/lib/dashboard";
 import { maybeRefreshCurrentPrices } from "@/lib/services";
 
 export const revalidate = 0;
 
 export default async function HomePage() {
-  await maybeRefreshCurrentPrices("visit");
-  const data = await getDashboardData();
+  try {
+    await maybeRefreshCurrentPrices("visit");
+  } catch (error) {
+    console.error("maybeRefreshCurrentPrices error", error);
+  }
+  const data = await getDashboardDataSafe();
 
   return <DashboardClient data={data} />;
 }

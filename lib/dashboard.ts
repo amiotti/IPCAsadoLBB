@@ -416,4 +416,53 @@ export async function getHistoryData() {
   }));
 }
 
+export function getEmptyDashboardData(): DashboardData {
+  const emptyView: DashboardSnapshotView = {
+    resumen: {
+      totalCanasta: 0,
+      totalMesAnterior: null,
+      totalEnero: null,
+      variacionVsMesAnteriorPct: null,
+      variacionVsEneroPct: null,
+      costoPorComensal: 0,
+      productoMayorSuba: null,
+      categoriaMayorIncidencia: null
+    },
+    categoriaIncidencia: [],
+    rows: [],
+    insights: ["No hay datos disponibles. Verifica la conexion de base de datos o el scraping."]
+  };
+
+  return {
+    actualizadoAt: null,
+    snapshotVigente: null,
+    resumen: emptyView.resumen,
+    categoriaIncidencia: emptyView.categoriaIncidencia,
+    rows: emptyView.rows,
+    serieMensual: [],
+    serieVariacionMensual: [],
+    snapshotOptions: [
+      {
+        key: "actual",
+        label: "Actual",
+        anio: null,
+        mes: null,
+        isActual: true
+      }
+    ],
+    selectedSnapshotKey: "actual",
+    viewsBySnapshot: { actual: emptyView },
+    insights: emptyView.insights
+  };
+}
+
+export async function getDashboardDataSafe(): Promise<DashboardData> {
+  try {
+    return await getDashboardData();
+  } catch (error) {
+    console.error("getDashboardDataSafe error", error);
+    return getEmptyDashboardData();
+  }
+}
+
 

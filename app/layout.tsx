@@ -16,7 +16,10 @@ const display = Merriweather({
 
 export const metadata: Metadata = {
   title: "IPC Asados LBB",
-  description: "Seguimiento mensual del costo de un asado para 10 personas"
+  description: "Seguimiento mensual del costo de un asado para 10 personas",
+  icons: {
+    icon: "/favicon.ico"
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
