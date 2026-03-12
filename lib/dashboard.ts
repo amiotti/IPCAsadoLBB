@@ -441,7 +441,11 @@ export async function getHistoryData() {
   }));
 }
 
-export function getEmptyDashboardData(): DashboardData {
+export function getEmptyDashboardData(reason?: string): DashboardData {
+  const reasonText = reason?.trim()
+    ? `No hay datos disponibles. Error: ${reason.trim()}`
+    : "No hay datos disponibles. Verifica la conexion de base de datos o el scraping.";
+
   const emptyView: DashboardSnapshotView = {
     resumen: {
       totalCanasta: 0,
@@ -455,7 +459,7 @@ export function getEmptyDashboardData(): DashboardData {
     },
     categoriaIncidencia: [],
     rows: [],
-    insights: ["No hay datos disponibles. Verifica la conexion de base de datos o el scraping."]
+    insights: [reasonText]
   };
 
   return {
@@ -486,7 +490,8 @@ export async function getDashboardDataSafe(): Promise<DashboardData> {
     return await getDashboardData();
   } catch (error) {
     console.error("getDashboardDataSafe error", error);
-    return getEmptyDashboardData();
+    const reason = error instanceof Error ? error.message : String(error);
+    return getEmptyDashboardData(reason);
   }
 }
 
