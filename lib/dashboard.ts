@@ -90,6 +90,7 @@ function computeCumulativeVariationFromBase(
 
 function generateDashboardInsights(view: DashboardSnapshotView): string[] {
   const insights: string[] = [];
+  insights.push("El mas pollerudo de la barra: SANTIAGO TUESCA 👗");
   if (view.resumen.productoMayorSuba) {
     insights.push(`Mayor suba mensual: ${view.resumen.productoMayorSuba}.`);
   }
