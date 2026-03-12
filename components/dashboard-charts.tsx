@@ -286,39 +286,71 @@ export function DashboardCharts({
           <h3 className="chart-title">Variacion mensual por producto (%)</h3>
           <div className="h-[360px] sm:h-[560px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={productBars} margin={{ top: 8, right: 16, left: 8, bottom: isMobile ? 52 : 90 }}>
-                <CartesianGrid strokeDasharray="2 6" stroke="rgba(0,0,0,0.12)" />
-                <XAxis
-                  dataKey="nombre"
-                  tick={{ fill: "#3f3f46", fontSize: isMobile ? 9 : 11 }}
-                  tickFormatter={(v) => {
-                    if (!isMobile) return v;
-                    const text = String(v);
-                    return text.length > 7 ? `${text.slice(0, 7)}…` : text;
-                  }}
-                  tickLine={false}
-                  axisLine={false}
-                  interval={0}
-                  angle={isMobile ? -20 : -35}
-                  textAnchor="end"
-                  height={isMobile ? 58 : 100}
-                />
-                <YAxis tick={{ fill: "#3f3f46", fontSize: isMobile ? 10 : 11 }} tickLine={false} axisLine={false} unit="%" width={isMobile ? 36 : 48} />
-                <Tooltip
-                  contentStyle={{
-                    background: "rgba(17, 24, 39, 0.94)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: 12,
-                    color: "#fff"
-                  }}
-                  formatter={(v: number) => `${Number(v).toFixed(2)}%`}
-                />
-                <Bar dataKey="variacionPct" shape={(props: any) => <ProductBarShape {...props} iconSize={iconSize} />} minPointSize={4}>
-                  {productBars.map((entry) => (
-                    <Cell key={entry.nombre} />
-                  ))}
-                </Bar>
-              </BarChart>
+              {isMobile ? (
+                <BarChart data={productBars} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                  <CartesianGrid strokeDasharray="2 6" stroke="rgba(0,0,0,0.12)" />
+                  <XAxis type="number" tick={{ fill: "#3f3f46", fontSize: 10 }} tickLine={false} axisLine={false} unit="%" />
+                  <YAxis
+                    type="category"
+                    dataKey="nombre"
+                    width={96}
+                    tick={{ fill: "#3f3f46", fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) => {
+                      const text = String(v);
+                      return text.length > 10 ? `${text.slice(0, 10)}…` : text;
+                    }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "rgba(17, 24, 39, 0.94)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 12,
+                      color: "#fff"
+                    }}
+                    formatter={(v: number) => `${Number(v).toFixed(2)}%`}
+                  />
+                  <Bar dataKey="variacionPct" radius={[0, 8, 8, 0]} minPointSize={4}>
+                    {productBars.map((entry) => {
+                      const value = Number(entry.variacionPct ?? 0);
+                      let color = "#a1a1aa";
+                      if (value > 0) color = "#ef4444";
+                      if (value < 0) color = "#16a34a";
+                      return <Cell key={entry.nombre} fill={color} />;
+                    })}
+                  </Bar>
+                </BarChart>
+              ) : (
+                <BarChart data={productBars} margin={{ top: 8, right: 16, left: 8, bottom: 90 }}>
+                  <CartesianGrid strokeDasharray="2 6" stroke="rgba(0,0,0,0.12)" />
+                  <XAxis
+                    dataKey="nombre"
+                    tick={{ fill: "#3f3f46", fontSize: 11 }}
+                    tickLine={false}
+                    axisLine={false}
+                    interval={0}
+                    angle={-35}
+                    textAnchor="end"
+                    height={100}
+                  />
+                  <YAxis tick={{ fill: "#3f3f46", fontSize: 11 }} tickLine={false} axisLine={false} unit="%" width={48} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "rgba(17, 24, 39, 0.94)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 12,
+                      color: "#fff"
+                    }}
+                    formatter={(v: number) => `${Number(v).toFixed(2)}%`}
+                  />
+                  <Bar dataKey="variacionPct" shape={(props: any) => <ProductBarShape {...props} iconSize={iconSize} />} minPointSize={4}>
+                    {productBars.map((entry) => (
+                      <Cell key={entry.nombre} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              )}
             </ResponsiveContainer>
           </div>
         </div>
