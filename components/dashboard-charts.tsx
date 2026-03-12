@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -76,7 +77,7 @@ function isBeforeOrEqual(anio: number, mes: number, target: { anio: number; mes:
 }
 
 function ProductBarShape(props: any) {
-  const { x, y, width, height, payload } = props;
+  const { x, y, width, height, payload, iconSize = 28 } = props;
   const href = getProductIconByCode(payload?.codigo);
   const value = Number(payload?.variacionPct ?? 0);
   let color = "#a1a1aa";
@@ -86,7 +87,6 @@ function ProductBarShape(props: any) {
   const rectY = height >= 0 ? y : y + height;
   const rectH = Math.abs(height);
   const centerX = x + width / 2;
-  const iconSize = 28;
   const endY = value >= 0 ? rectY + 2 : rectY + rectH - (iconSize + 2);
   return (
     <g>
@@ -113,6 +113,14 @@ export function DashboardCharts({
   serieVariacionMensual,
   selectedSnapshotKey
 }: Props) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const sync = () => setIsMobile(window.innerWidth < 768);
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
+  }, []);
+
   const selectedMonth = parseSnapshotKey(selectedSnapshotKey);
   const now = new Date();
 
@@ -145,15 +153,16 @@ export function DashboardCharts({
     nombre: r.producto,
     variacionPct: r.variacionMensualPct ?? 0
   }));
+  const iconSize = isMobile ? 16 : 28;
 
   return (
     <section className="grid gap-4 lg:grid-cols-2">
       <article className="chart-panel reveal">
         <div className="panel-inner">
           <h3 className="chart-title">Evolucion del total de canasta</h3>
-          <div className="h-72">
+          <div className="h-[280px] sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={serieTotal} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+              <LineChart data={serieTotal} margin={{ top: 8, right: 16, left: 4, bottom: isMobile ? 22 : 8 }}>
                 <defs>
                   <linearGradient id="lineTotal" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stopColor="#f97316" />
@@ -161,12 +170,19 @@ export function DashboardCharts({
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="2 6" stroke="rgba(0,0,0,0.15)" />
-                <XAxis dataKey="label" tick={{ fill: "#3f3f46", fontSize: 11 }} tickLine={false} axisLine={false} />
-                <YAxis
-                  tick={{ fill: "#3f3f46", fontSize: 11 }}
+                <XAxis
+                  dataKey="label"
+                  tick={{ fill: "#3f3f46", fontSize: isMobile ? 10 : 11 }}
                   tickLine={false}
                   axisLine={false}
-                  width={66}
+                  interval={isMobile ? "preserveStartEnd" : 0}
+                  minTickGap={isMobile ? 28 : 8}
+                />
+                <YAxis
+                  tick={{ fill: "#3f3f46", fontSize: isMobile ? 10 : 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={isMobile ? 54 : 66}
                   domain={["dataMin - 5000", "dataMax + 5000"]}
                   tickFormatter={formatArsAxis}
                 />
@@ -189,12 +205,21 @@ export function DashboardCharts({
       <article className="chart-panel reveal" style={{ animationDelay: "80ms" }}>
         <div className="panel-inner">
           <h3 className="chart-title">Variacion mensual total (%)</h3>
-          <div className="h-72">
+          <div className="h-[300px] sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={serieVariacion} margin={{ top: 8, right: 16, left: 8, bottom: 24 }}>
+              <BarChart data={serieVariacion} margin={{ top: 8, right: 16, left: 4, bottom: isMobile ? 34 : 24 }}>
                 <CartesianGrid strokeDasharray="2 6" stroke="rgba(0,0,0,0.12)" />
-                <XAxis dataKey="label" tick={{ fill: "#3f3f46", fontSize: 11 }} tickLine={false} axisLine={false} angle={-20} textAnchor="end" height={56} />
-                <YAxis tick={{ fill: "#3f3f46", fontSize: 11 }} tickLine={false} axisLine={false} unit="%" />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fill: "#3f3f46", fontSize: isMobile ? 10 : 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  angle={isMobile ? 0 : -20}
+                  textAnchor={isMobile ? "middle" : "end"}
+                  interval={isMobile ? 1 : 0}
+                  height={isMobile ? 36 : 56}
+                />
+                <YAxis tick={{ fill: "#3f3f46", fontSize: isMobile ? 10 : 11 }} tickLine={false} axisLine={false} unit="%" width={isMobile ? 36 : 48} />
                 <Tooltip
                   contentStyle={{
                     background: "rgba(17, 24, 39, 0.94)",
@@ -222,20 +247,20 @@ export function DashboardCharts({
       <article className="chart-panel reveal" style={{ animationDelay: "120ms" }}>
         <div className="panel-inner">
           <h3 className="chart-title">Incidencia por categoria</h3>
-          <div className="h-[560px]">
+          <div className="h-[340px] sm:h-[560px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={categoriaIncidencia} margin={{ top: 8, right: 16, left: 8, bottom: 90 }}>
+              <BarChart data={categoriaIncidencia} margin={{ top: 8, right: 16, left: 8, bottom: isMobile ? 44 : 90 }}>
                 <CartesianGrid strokeDasharray="2 6" stroke="rgba(0,0,0,0.12)" />
                 <XAxis
                   dataKey="categoria"
-                  tick={{ fill: "#3f3f46", fontSize: 11 }}
+                  tick={{ fill: "#3f3f46", fontSize: isMobile ? 10 : 11 }}
                   tickLine={false}
                   axisLine={false}
-                  angle={-35}
-                  textAnchor="end"
-                  height={100}
+                  angle={isMobile ? 0 : -35}
+                  textAnchor={isMobile ? "middle" : "end"}
+                  height={isMobile ? 44 : 100}
                 />
-                <YAxis tick={{ fill: "#3f3f46", fontSize: 11 }} tickLine={false} axisLine={false} unit="%" />
+                <YAxis tick={{ fill: "#3f3f46", fontSize: isMobile ? 10 : 11 }} tickLine={false} axisLine={false} unit="%" width={isMobile ? 36 : 48} />
                 <Tooltip
                   contentStyle={{
                     background: "rgba(17, 24, 39, 0.94)",
@@ -259,21 +284,26 @@ export function DashboardCharts({
       <article className="chart-panel reveal" style={{ animationDelay: "160ms" }}>
         <div className="panel-inner">
           <h3 className="chart-title">Variacion mensual por producto (%)</h3>
-          <div className="h-[560px]">
+          <div className="h-[360px] sm:h-[560px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={productBars} margin={{ top: 8, right: 16, left: 8, bottom: 90 }}>
+              <BarChart data={productBars} margin={{ top: 8, right: 16, left: 8, bottom: isMobile ? 52 : 90 }}>
                 <CartesianGrid strokeDasharray="2 6" stroke="rgba(0,0,0,0.12)" />
                 <XAxis
                   dataKey="nombre"
-                  tick={{ fill: "#3f3f46", fontSize: 11 }}
+                  tick={{ fill: "#3f3f46", fontSize: isMobile ? 9 : 11 }}
+                  tickFormatter={(v) => {
+                    if (!isMobile) return v;
+                    const text = String(v);
+                    return text.length > 7 ? `${text.slice(0, 7)}…` : text;
+                  }}
                   tickLine={false}
                   axisLine={false}
                   interval={0}
-                  angle={-35}
+                  angle={isMobile ? -20 : -35}
                   textAnchor="end"
-                  height={100}
+                  height={isMobile ? 58 : 100}
                 />
-                <YAxis tick={{ fill: "#3f3f46", fontSize: 11 }} tickLine={false} axisLine={false} unit="%" />
+                <YAxis tick={{ fill: "#3f3f46", fontSize: isMobile ? 10 : 11 }} tickLine={false} axisLine={false} unit="%" width={isMobile ? 36 : 48} />
                 <Tooltip
                   contentStyle={{
                     background: "rgba(17, 24, 39, 0.94)",
@@ -283,7 +313,7 @@ export function DashboardCharts({
                   }}
                   formatter={(v: number) => `${Number(v).toFixed(2)}%`}
                 />
-                <Bar dataKey="variacionPct" shape={<ProductBarShape />} minPointSize={4}>
+                <Bar dataKey="variacionPct" shape={(props: any) => <ProductBarShape {...props} iconSize={iconSize} />} minPointSize={4}>
                   {productBars.map((entry) => (
                     <Cell key={entry.nombre} />
                   ))}
