@@ -1,5 +1,6 @@
 import { prisma } from "./db";
 import { BASE_ANIO, BASE_LABEL, BASE_MES } from "./constants";
+import { maybeRefreshCurrentPrices } from "./services";
 import {
   buildMonthlyIndexSeries,
   buildProductVariationRanking,
@@ -242,6 +243,12 @@ function buildSnapshotView(
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
+  try {
+    await maybeRefreshCurrentPrices("visit");
+  } catch (error) {
+    console.error("maybeRefreshCurrentPrices error", error);
+  }
+
   const { anio, mes } = ymNow();
   const prev = prevMonth(anio, mes);
   const basePrev = prevMonth(BASE_ANIO, BASE_MES);
