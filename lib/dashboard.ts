@@ -136,22 +136,11 @@ function buildSnapshotView(
       : (previousForSelected ? (snapshotsByKey.get(previousForSelected) ?? null) : null);
     const baseSnapshot = snapshotsByKey.get(baseKey) ?? null;
     const fallbackActualSnapshot = previousForSelected ? (snapshotsByKey.get(previousForSelected) ?? null) : null;
-    const currentScrapedAt = p.currentPrice?.scrapedAt ?? null;
-    const hasCurrentMonthPrice = Boolean(
-      currentScrapedAt &&
-      currentScrapedAt.getUTCFullYear() === currentYm.anio &&
-      currentScrapedAt.getUTCMonth() + 1 === currentYm.mes
-    );
-
     const effectiveActualPrice =
-      hasCurrentMonthPrice
-        ? (p.currentPrice?.precioUnitario ?? null)
-        : (fallbackActualSnapshot?.precioUnitario ?? p.currentPrice?.precioUnitario ?? null);
+      p.currentPrice?.precioUnitario ?? fallbackActualSnapshot?.precioUnitario ?? null;
 
     const effectiveActualStatus =
-      hasCurrentMonthPrice
-        ? (p.currentPrice?.status ?? "no_encontrado")
-        : (fallbackActualSnapshot?.status ?? p.currentPrice?.status ?? "no_encontrado");
+      p.currentPrice?.status ?? fallbackActualSnapshot?.status ?? "no_encontrado";
 
     const selectedPrice = selected.isActual
       ? (effectiveActualPrice ?? 0)
